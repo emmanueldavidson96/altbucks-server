@@ -1,6 +1,7 @@
 import { RequestHandler, Response, Request, NextFunction } from "express";
 import createHttpError from "http-errors";
 import userModel from "../models/user.model";
+import userWallet from "../models/wallet.model";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/generateVerificationTokenAndSetCookie";
 
@@ -41,6 +42,13 @@ export const SignupHandlerTaskEarner:RequestHandler = async (request:Request, re
             confirmPassword:confirmPassword,
             isTaskEarner:true
         })
+
+        await userWallet.create({
+            userId: newUser._id,
+            walletType: 'Earner'
+            
+        })
+      
         generateTokenAndSetCookie(response, newUser._id);
         response.status(201).json({
             success:true,
@@ -80,6 +88,13 @@ export const SignupHandlerTaskCreator:RequestHandler = async (request:Request, r
             confirmPassword:confirmPassword,
             isTaskCreator:true
         })
+
+        await userWallet.create({
+            userId: newUser._id,
+            walletType: 'Creator'
+            
+        })
+
         generateTokenAndSetCookie(response, newUser._id);
         response.status(201).json({
             success:true,

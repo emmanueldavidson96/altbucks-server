@@ -5,6 +5,8 @@ import createHttpError, {isHttpError} from "http-errors";
 import cors from "cors";
 import env from "./utils/validateEnv";
 import userRoutes from "./routes/user.routes";
+import paypalRoutes from "./routes/paypal.routes";
+import walletRoutes from "./routes/wallet.route";
 import cookieParser from "cookie-parser";
 
 // Middlewares
@@ -14,12 +16,14 @@ app.use(morgan("dev"));
 app.use(cookieParser());
 
 app.use(cors({
-    origin:["http://localhost:3000","https://altbucks.vercel.app"],
+    origin:["http://localhost:3000","https://altbucks.vercel.app", ],
     credentials:true
 }));
 
 //Routes
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/paypal", paypalRoutes);
+app.use("/api/v1/wallet", walletRoutes);
 
 
 //Error Handling
