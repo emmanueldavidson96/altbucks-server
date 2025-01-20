@@ -36,42 +36,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-require("dotenv/config");
 const express_1 = __importDefault(require("express"));
-const morgan_1 = __importDefault(require("morgan"));
-const http_errors_1 = __importStar(require("http-errors"));
-const cors_1 = __importDefault(require("cors"));
-const user_routes_1 = __importDefault(require("./routes/user.routes"));
-const paypal_routes_1 = __importDefault(require("./routes/paypal.routes"));
-const wallet_route_1 = __importDefault(require("./routes/wallet.route"));
-const cookie_parser_1 = __importDefault(require("cookie-parser"));
-// Middlewares
-const app = (0, express_1.default)();
-app.use(express_1.default.json());
-app.use((0, morgan_1.default)("dev"));
-app.use((0, cookie_parser_1.default)());
-app.use((0, cors_1.default)({
-    origin: ["http://localhost:3000", "https://altbucks.vercel.app",],
-    credentials: true
-}));
-//Routes
-app.use("/api/v1/users", user_routes_1.default);
-app.use("/api/v1/paypal", paypal_routes_1.default);
-app.use("/api/v1/wallet", wallet_route_1.default);
-//Error Handling
-app.use((request, response, next) => {
-    next((0, http_errors_1.default)(404, "Endpoint not found"));
-});
-app.use((error, request, response, next) => {
-    console.error(error);
-    let errorMessage = "An unknown error occcured!";
-    let statusCode = 500;
-    if ((0, http_errors_1.isHttpError)(error)) {
-        statusCode = error.status;
-        errorMessage = error.message;
-    }
-    response.status(statusCode).json({
-        error: errorMessage
-    });
-});
-exports.default = app;
+const Controller = __importStar(require("../controllers/paypal.controller"));
+const verifyToken_1 = __importDefault(require("../middlewares/verifyToken"));
+const router = express_1.default.Router();
+router.post("/withdrawal", verifyToken_1.default, Controller.WithdrawalHandler);
+router.post("/deposit", verifyToken_1.default, Controller.createOrderHandler);
+router.get("/confirm-deposit", Controller.captureOrderHandler);
+exports.default = router;

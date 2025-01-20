@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LogoutUserHandler = exports.UpdateUserHandler = exports.GetAllUsers = exports.GetUserById = exports.getUserProfile = exports.LoginHandlerTaskEarner = exports.SignupHandlerTaskCreator = exports.SignupHandlerTaskEarner = void 0;
 const http_errors_1 = __importDefault(require("http-errors"));
 const user_model_1 = __importDefault(require("../models/user.model"));
+const wallet_model_1 = __importDefault(require("../models/wallet.model"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const generateVerificationTokenAndSetCookie_1 = __importDefault(require("../utils/generateVerificationTokenAndSetCookie"));
 // Controller to Sign up Task Earner
@@ -42,6 +43,10 @@ const SignupHandlerTaskEarner = (request, response, next) => __awaiter(void 0, v
             phoneNumber: phoneNumber,
             confirmPassword: confirmPassword,
             isTaskEarner: true
+        });
+        yield wallet_model_1.default.create({
+            userId: newUser._id,
+            walletType: 'Earner'
         });
         (0, generateVerificationTokenAndSetCookie_1.default)(response, newUser._id);
         response.status(201).json({
@@ -80,6 +85,10 @@ const SignupHandlerTaskCreator = (request, response, next) => __awaiter(void 0, 
             phoneNumber: phoneNumber,
             confirmPassword: confirmPassword,
             isTaskCreator: true
+        });
+        yield wallet_model_1.default.create({
+            userId: newUser._id,
+            walletType: 'Creator'
         });
         (0, generateVerificationTokenAndSetCookie_1.default)(response, newUser._id);
         response.status(201).json({
