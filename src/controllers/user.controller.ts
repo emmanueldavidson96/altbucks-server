@@ -3,6 +3,7 @@ import createHttpError from "http-errors";
 import userModel from "../models/user.model";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/generateVerificationTokenAndSetCookie";
+import generateReferralCode from "../utils/generateReferralCode";
 
 
 interface SignUpBody{
@@ -31,6 +32,9 @@ export const SignupHandlerTaskEarner:RequestHandler = async (request:Request, re
             throw createHttpError(409, "confirm password!")
         }
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Generate referral code
+        const referralCode = generateReferralCode()
         
         const newUser = await userModel.create({
             firstName:firstName,
@@ -39,7 +43,8 @@ export const SignupHandlerTaskEarner:RequestHandler = async (request:Request, re
             lastName:lastName,
             phoneNumber: phoneNumber,
             confirmPassword:confirmPassword,
-            isTaskEarner:true
+            isTaskEarner:true,
+            referralCode
         })
         generateTokenAndSetCookie(response, newUser._id);
         response.status(201).json({
