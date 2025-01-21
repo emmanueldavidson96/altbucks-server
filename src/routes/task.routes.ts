@@ -1,11 +1,12 @@
 import express from "express";
 import * as Controller from "../controllers/task.controller";
 import verifyToken from "../middlewares/verifyToken";
+import upload from "../middlewares/multer";
 
 const router = express.Router();
 
 // Create new task
-router.post("/create-task", verifyToken, Controller.createTask);
+router.post("/create-task", verifyToken, upload.array('files', 5), Controller.createTask);
 
 // Get all tasks with pagination
 router.get("/tasks", verifyToken, Controller.getAllTasks);
@@ -30,9 +31,12 @@ router.patch("/task-complete/:id", verifyToken, Controller.markTaskComplete);
 router.patch("/task-pending/:id", verifyToken, Controller.markTaskPending);
 
 // Update task
-router.patch("/update-task/:id", verifyToken, Controller.updateTask);
+router.patch("/update-task/:id", verifyToken, upload.array('files', 5), Controller.updateTask);
 
 // Delete task
 router.delete("/delete-task/:id", verifyToken, Controller.deleteTask);
+
+// tasks by filter
+router.get('/filter', verifyToken, Controller.getFilteredTasks);
 
 export default router;

@@ -30,5 +30,4 @@ router.get("/user/:id", verifyToken, Controller.GetUserById)
 router.post("/logout-user", Controller.LogoutUserHandler);
 
 
-
 export default router

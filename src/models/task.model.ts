@@ -1,29 +1,5 @@
-import { Schema, model, Document, Types } from 'mongoose';
-
-export interface ITask extends Document {
-    title: string;
-    taskType: string;
-    description: string;
-    requirements: string;
-    location?: string;
-    compensation: {
-        amount: number;
-        currency: string;
-    };
-    deadline: Date;
-    maxRespondents: number;
-    attachments?: {
-        files: Array<{
-            url: string;
-            type: string;
-            size: number;
-        }>;
-        links: string[];
-    };
-    status: 'pending' |'in progress' | 'completed';
-    postedDate: Date;
-    userId: Types.ObjectId;
-}
+import { Schema, model } from 'mongoose';
+import { ITask, TaskType, TaskStatus, Currency, Location } from '../@types/task';
 
 const TaskSchema = new Schema({
     title: {
@@ -35,7 +11,19 @@ const TaskSchema = new Schema({
     taskType: {
         type: String,
         required: [true, 'Task type is required'],
-        enum: ['writing', 'design', 'development', 'review', 'vedio review', 'marketing', 'vedio Editing', 'data analysis']
+        enum: {
+            values: [
+                'writing',
+                'design',
+                'development',
+                'review',
+                'video review',
+                'marketing',
+                'video editing',
+                'data_analysis'
+            ] as TaskType[],
+            message: '{VALUE} is not a valid task type'
+        }
     },
     description: {
         type: String,
@@ -49,8 +37,11 @@ const TaskSchema = new Schema({
     },
     location: {
         type: String,
-        enum: ['remote', 'onsite'],
-        default: ''
+        enum: {
+            values: ['remote', 'onsite'] as Location[],
+            message: '{VALUE} is not a valid location'
+        },
+        default: 'remote'
     },
     compensation: {
         amount: {
@@ -60,30 +51,52 @@ const TaskSchema = new Schema({
         },
         currency: {
             type: String,
-            default: 'USD',
-            enum: ['USD', 'EUR', 'GBP']
+            enum: {
+                values: ['USD', 'EUR', 'GBP'] as Currency[],
+                message: '{VALUE} is not a valid currency'
+            },
+            default: 'USD'
         }
     },
     deadline: {
         type: Date,
-        required: [true, 'Deadline is required']
+        required: [true, 'Deadline is required'],
+        validate: {
+            validator: function(value: Date) {
+                return value > new Date();
+            },
+            message: 'Deadline must be a future date'
+        }
     },
     maxRespondents: {
         type: Number,
-        required: true,
+        required: [true, 'Maximum respondents is required'],
         min: [1, 'Must accept at least one respondent']
     },
     attachments: {
         files: [{
-            url: String,
-            type: String,
-            size: Number
+            url: {
+                type: String,
+                required: true
+            },
+            type: {
+                type: String,
+                required: true
+            },
+            size: {
+                type: Number,
+                required: true,
+                min: [0, 'File size cannot be negative']
+            }
         }],
         links: [String]
     },
     status: {
         type: String,
-        enum: ['pending', 'in progress', 'completed'],
+        enum: {
+            values: ['pending', 'in progress', 'completed'] as TaskStatus[],
+            message: '{VALUE} is not a valid status'
+        },
         default: 'pending'
     },
     postedDate: {
@@ -97,11 +110,13 @@ const TaskSchema = new Schema({
         index: true
     }
 }, {
-    timestamps: true
+    timestamps: true // Adds createdAt and updatedAt fields
 });
 
 // Add compound indexes for common queries
 TaskSchema.index({ userId: 1, status: 1 });
 TaskSchema.index({ userId: 1, postedDate: -1 });
+TaskSchema.index({ userId: 1, taskType: 1 });
+TaskSchema.index({ userId: 1, deadline: 1 });
 
 export const Task = model<ITask>('Task', TaskSchema);

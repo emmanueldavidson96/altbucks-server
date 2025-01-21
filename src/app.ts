@@ -7,6 +7,7 @@ import env from "./utils/validateEnv";
 import userRoutes from "./routes/user.routes";
 import cookieParser from "cookie-parser";
 import taskRoutes from "./routes/task.routes";
+import path from "path";
 
 // Middlewares
 const app = express();
@@ -19,22 +20,23 @@ app.use(cors({
     credentials:true
 }));
 
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 //Routes
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/tasks", taskRoutes);
-
 
 //Error Handling
 app.use((request, response, next) => {
     next(createHttpError(404,"Endpoint not found"))
 })
 
-
 app.use((error:unknown, request:Request, response:Response, next:NextFunction) => {
     console.error(error);
     let errorMessage = "An unknown error occcured!"
     let statusCode = 500;
-    if(isHttpError(error)){ 
+    if(isHttpError(error)){
         statusCode = error.status;
         errorMessage = error.message;
     }
