@@ -21,7 +21,7 @@ export const createTask: RequestHandler = async (req: any, res, next) => {
             size: file.size
         })) ?? [];
 
-        // Parse compensation (it will be a string in multipart/form-data)
+        // Parse compensation ( will be a string in multipart/form-data)
         let compensation;
         try {
             compensation = typeof req.body.compensation === 'string'
@@ -78,6 +78,8 @@ export const createTask: RequestHandler = async (req: any, res, next) => {
         next(error);
     }
 };
+
+
 // Get All Tasks with pagination
 export const getAllTasks: RequestHandler = async (req: any, res, next) => {
     try {
