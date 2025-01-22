@@ -5,25 +5,37 @@ import mongoose from "mongoose";
 
 // Create Task Handler
 export const createTaskHandler: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
-  const { title, description, createdBy, type, platform, amount } = req.body;
+  const { title, description, createdBy, type, platform, amount, assignedTo } = req.body;
+
   try {
-    if (!title || !description || !createdBy || !type || !platform || amount === undefined) {
+    // Validate required fields
+    if (!title || !description || !createdBy || !type || !platform || !amount || !assignedTo === undefined) {
       throw createHttpError(400, "Missing required fields");
     }
 
+    // Validate the `createdBy` field as a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(createdBy)) {
       throw createHttpError(400, "Invalid user ID");
     }
 
-    const task = await TaskModel.create({ title, description, createdBy, type, platform, amount });
+    const task = await TaskModel.create({
+      title,
+      description,
+      createdBy: new mongoose.Types.ObjectId(createdBy), // Use `new` to instantiate ObjectId
+      type,
+      platform,
+      amount,
+      assignedTo
+    });
 
+    // Send the response
     res.status(201).json({
       success: true,
       message: "Task created successfully!",
       task,
     });
   } catch (error) {
-    next(error);
+    next(error); // Pass the error to the error-handling middleware
   }
 };
 
@@ -140,7 +152,7 @@ export const getUserTaskStatsHandler: RequestHandler = async (req: Request, res:
     }
 
     const stats = await TaskModel.aggregate([
-      { $match: { createdBy: mongoose.Types.ObjectId(userId) } },
+      { $match: { createdBy: new mongoose.Types.ObjectId(userId) } },
       { $group: { _id: "$status", count: { $sum: 1 } } },
     ]);
 
@@ -177,7 +189,7 @@ export const getUserTotalEarningsHandler: RequestHandler = async (req: Request, 
     }
 
     const totalEarnings = await TaskModel.aggregate([
-      { $match: { createdBy: mongoose.Types.ObjectId(userId) } },
+      { $match: { createdBy: new mongoose.Types.ObjectId(userId) } },
       { $group: { _id: null, totalEarnings: { $sum: "$amount" } } },
     ]);
 
