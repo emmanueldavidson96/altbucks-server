@@ -38,7 +38,7 @@ export const referralInviteHandler:RequestHandler = async (request:Request, resp
         }
         const referral = await referralModel.create({
             email,
-            senderId: userId,
+            earnerId: userId,
             sentAt: new Date(),
             status: "pending",
         });
@@ -60,10 +60,36 @@ export const referralInviteHandler:RequestHandler = async (request:Request, resp
 
 export const getReferalsListHandler:RequestHandler = async (request:Request, response:Response, next:NextFunction) => {
     const { userId } = request;
-    const { email } = request.body;
-    const { status, from, to, page = 1, limit = 10, date } = request.query;
+    const { status, from, to } = request.query;
+    const page = parseInt(request.query.page as string, 10) || 1;
+    const limit = parseInt(request.query.limit as string, 10) || 10;
     try {
-        
+        // create object containing query parameters
+        const query: any = { earnerId: userId };
+        if (status) query.status = status;
+        if (from || to) {
+            query.sentAt = {};
+            if (from) query.sentAt.$gte = new Date(from as string);
+            if (to) query.sentAt.$lte = new Date(to as string);
+        }
+
+        // search for referrals
+        const referrals = await referralModel.find(query)
+        .skip((page - 1) * limit)
+        .limit(limit)
+
+        const totalCount = referrals.length;
+
+        response.status(200).json({
+            success:true,
+            message:"Here are your list of referrals!",
+            data: referrals,
+            pagination: {
+                page,
+                limit,
+                totalCount,
+            },
+        })
     }
     catch(error) {
         next(error)
