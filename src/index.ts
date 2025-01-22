@@ -8,6 +8,7 @@ import app from "./app";
 import { connectDB } from "./db/connectDB";
 
 
+
 app.listen(env.PORT, () => {
     connectDB()
     console.log(`Application is running at port ${env.PORT}`)

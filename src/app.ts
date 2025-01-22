@@ -6,6 +6,9 @@ import cors from "cors";
 import env from "./utils/validateEnv";
 import userRoutes from "./routes/user.routes";
 import cookieParser from "cookie-parser";
+import referralRoutes from "./routes/referral.route";
+
+
 
 // Middlewares
 const app = express();
@@ -20,6 +23,8 @@ app.use(cors({
 
 //Routes
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/referrals", referralRoutes);
+
 
 
 //Error Handling
