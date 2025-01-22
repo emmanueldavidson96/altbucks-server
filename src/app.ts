@@ -5,7 +5,7 @@ import createHttpError, {isHttpError} from "http-errors";
 import cors from "cors";
 import env from "./utils/validateEnv";
 import userRoutes from "./routes/user.routes";
-import taskRouter from "./routes/task.routes";
+import taskRoutes from "./routes/task.routes";
 import cookieParser from "cookie-parser";
 
 // Middlewares
@@ -21,7 +21,7 @@ app.use(cors({
 
 //Routes
 app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/tasks", taskRouter);
+app.use("/api/v1/tasks", taskRoutes);
 
 
 //Error Handling
