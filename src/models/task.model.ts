@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-import { ITask, TaskType, TaskStatus, Currency, Location } from '../@types/task';
 
 const TaskSchema = new Schema({
     title: {
@@ -21,7 +20,7 @@ const TaskSchema = new Schema({
                 'marketing',
                 'video editing',
                 'data_analysis'
-            ] as TaskType[],
+            ],
             message: '{VALUE} is not a valid task type'
         }
     },
@@ -38,7 +37,7 @@ const TaskSchema = new Schema({
     location: {
         type: String,
         enum: {
-            values: ['remote', 'onsite'] as Location[],
+            values: ['remote', 'onsite'],
             message: '{VALUE} is not a valid location'
         },
         default: 'remote'
@@ -47,12 +46,13 @@ const TaskSchema = new Schema({
         amount: {
             type: Number,
             required: [true, 'Compensation amount is required'],
-            min: [0, 'Compensation cannot be negative']
+            min: [0, 'Compensation cannot be negative'],
+            set: (v: string | number) => Number(v) || 0
         },
         currency: {
             type: String,
             enum: {
-                values: ['USD', 'EUR', 'GBP'] as Currency[],
+                values: ['USD', 'EUR', 'GBP'],
                 message: '{VALUE} is not a valid currency'
             },
             default: 'USD'
@@ -66,15 +66,18 @@ const TaskSchema = new Schema({
                 return value > new Date();
             },
             message: 'Deadline must be a future date'
-        }
+        },
+        set: (v: string | Date) => new Date(v)
     },
     maxRespondents: {
         type: Number,
         required: [true, 'Maximum respondents is required'],
-        min: [1, 'Must accept at least one respondent']
+        min: [1, 'Must accept at least one respondent'],
+        set: (v: string | number) => Number(v) || 1
     },
     attachments: {
         files: [{
+            _id: false,
             url: {
                 type: String,
                 required: true
@@ -86,7 +89,8 @@ const TaskSchema = new Schema({
             size: {
                 type: Number,
                 required: true,
-                min: [0, 'File size cannot be negative']
+                min: [0, 'File size cannot be negative'],
+                set: (v: string | number) => Number(v) || 0
             }
         }],
         links: [String]
@@ -94,7 +98,7 @@ const TaskSchema = new Schema({
     status: {
         type: String,
         enum: {
-            values: ['pending', 'in progress', 'completed'] as TaskStatus[],
+            values: ['pending', 'in progress', 'completed'],
             message: '{VALUE} is not a valid status'
         },
         default: 'pending'
@@ -110,13 +114,12 @@ const TaskSchema = new Schema({
         index: true
     }
 }, {
-    timestamps: true // Adds createdAt and updatedAt fields
+    timestamps: true
 });
 
-// Add compound indexes for common queries
 TaskSchema.index({ userId: 1, status: 1 });
 TaskSchema.index({ userId: 1, postedDate: -1 });
 TaskSchema.index({ userId: 1, taskType: 1 });
 TaskSchema.index({ userId: 1, deadline: 1 });
 
-export const Task = model<ITask>('Task', TaskSchema);
+export const Task = model('Task', TaskSchema);
