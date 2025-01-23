@@ -1,39 +1,31 @@
 import express from "express";
-import {
-    generateReferral,
-    trackReferrals,
-    getLeaderboard,
-    claimReward,
-    generateQRCode,
-    updateReferralStatus,
-    getAllReferrals,
-    getReferralAnalytics,
-} from "../controllers/referral.controller";
+import * as Controller from "../controllers/referral.controller";
+import verifyToken from "../middlewares/verifyToken";
 
 const router = express.Router();
 
 // Generate a referral
-router.post("/generate", generateReferral);
+router.post("/generate", verifyToken, Controller.generateReferral);
 
 // Track referrals by user ID
-router.get("/track/:userId", trackReferrals);
+router.get("/track/:userId", verifyToken,  Controller.trackReferrals);
 
 // Get leaderboard
-router.get("/leaderboard", getLeaderboard);
+router.get("/leaderboard", Controller.getLeaderboard);
 
 // Claim a reward
-router.post("/claim-reward", claimReward);
+router.post("/claim-reward", Controller.claimReward);
 
 // Generate QR Code for referral link
-router.post("/qr-code", generateQRCode);
+router.post("/qr-code", Controller.generateQRCode);
 
 // Update referral status
-router.put("/update-status", updateReferralStatus);
+router.put("/update-status", verifyToken,  Controller.updateReferralStatus);
 
 // Get all referrals
-router.get("/", getAllReferrals);
+router.get("/", verifyToken, Controller.getAllReferrals);
 
 // Get referral analytics (admin)
-router.get("/referrals/analytics", getReferralAnalytics);
+router.get("/referrals/analytics", verifyToken,  Controller.getReferralAnalytics);
 
 export default router;
