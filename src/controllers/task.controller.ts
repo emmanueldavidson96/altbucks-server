@@ -1,10 +1,15 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import createHttpError from "http-errors";
 import { Task } from "../models/task.model";
+import User from "../models/user.model";
+
 
 export const createTask: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // Clean whitespace from field names
+        const user = await User.findById(req.userId);
+        if (!user) throw createHttpError(404, "User not found");
+        if (!user.isTaskCreator) throw createHttpError(403, "Not authorized to create tasks");
+
         const cleanBody: Record<string, any> = {};
         Object.keys(req.body).forEach(key => {
             cleanBody[key.trim()] = req.body[key];
@@ -39,9 +44,11 @@ export const createTask: RequestHandler = async (req: Request, res: Response, ne
     }
 };
 
-
 export const getAllTasks: RequestHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
+        const user = await User.findById(request.userId);
+        if (!user) throw createHttpError(404, "User not found");
+
         const page = +(request.query.page || 1);
         const limit = +(request.query.limit || 10);
 
@@ -64,6 +71,9 @@ export const getAllTasks: RequestHandler = async (request: Request, response: Re
 
 export const getRecentTasks: RequestHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
+        const user = await User.findById(request.userId);
+        if (!user) throw createHttpError(404, "User not found");
+
         const tasks = await Task.find({ userId: request.userId })
             .sort({ createdAt: -1 })
             .limit(+(request.query.limit || 5));
@@ -76,6 +86,9 @@ export const getRecentTasks: RequestHandler = async (request: Request, response:
 
 export const getTaskById: RequestHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
+        const user = await User.findById(request.userId);
+        if (!user) throw createHttpError(404, "User not found");
+
         const task = await Task.findOne({
             _id: request.params.id,
             userId: request.userId
@@ -90,6 +103,10 @@ export const getTaskById: RequestHandler = async (request: Request, response: Re
 
 export const updateTask: RequestHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
+        const user = await User.findById(request.userId);
+        if (!user) throw createHttpError(404, "User not found");
+        if (!user.isTaskCreator) throw createHttpError(403, "Not authorized to update tasks");
+
         const task = await Task.findOneAndUpdate(
             { _id: request.params.id, userId: request.userId },
             { $set: request.body },
@@ -105,6 +122,10 @@ export const updateTask: RequestHandler = async (request: Request, response: Res
 
 export const deleteTask: RequestHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
+        const user = await User.findById(request.userId);
+        if (!user) throw createHttpError(404, "User not found");
+        if (!user.isTaskCreator) throw createHttpError(403, "Not authorized to delete tasks");
+
         const task = await Task.findOneAndDelete({
             _id: request.params.id,
             userId: request.userId
@@ -119,6 +140,9 @@ export const deleteTask: RequestHandler = async (request: Request, response: Res
 
 export const markTaskPending: RequestHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
+        const user = await User.findById(request.userId);
+        if (!user) throw createHttpError(404, "User not found");
+
         const task = await Task.findOneAndUpdate(
             { _id: request.params.id, userId: request.userId },
             { status: 'pending' },
@@ -134,6 +158,9 @@ export const markTaskPending: RequestHandler = async (request: Request, response
 
 export const markTaskComplete: RequestHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
+        const user = await User.findById(request.userId);
+        if (!user) throw createHttpError(404, "User not found");
+
         const task = await Task.findOneAndUpdate(
             { _id: request.params.id, userId: request.userId },
             { status: 'completed' },
@@ -149,6 +176,9 @@ export const markTaskComplete: RequestHandler = async (request: Request, respons
 
 export const getTasksByStatus: RequestHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
+        const user = await User.findById(request.userId);
+        if (!user) throw createHttpError(404, "User not found");
+
         const { status } = request.params;
         if (!['pending', 'in progress', 'completed'].includes(status)) {
             throw createHttpError(400, "Invalid status");
@@ -167,6 +197,9 @@ export const getTasksByStatus: RequestHandler = async (request: Request, respons
 
 export const searchTasks: RequestHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
+        const user = await User.findById(request.userId);
+        if (!user) throw createHttpError(404, "User not found");
+
         const query = {
             userId: request.userId,
             ...(request.query.query && {
@@ -187,6 +220,9 @@ export const searchTasks: RequestHandler = async (request: Request, response: Re
 
 export const getUpcomingDeadlines: RequestHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
+        const user = await User.findById(request.userId);
+        if (!user) throw createHttpError(404, "User not found");
+
         const days = +(request.query.days || 7);
         const futureDate = new Date();
         futureDate.setDate(futureDate.getDate() + days);
@@ -206,11 +242,16 @@ export const getUpcomingDeadlines: RequestHandler = async (request: Request, res
     }
 };
 
+
 export const getFilteredTasks: RequestHandler = async (request: Request, response: Response, next: NextFunction) => {
     try {
+        const user = await User.findById(request.userId);
+        if (!user) throw createHttpError(404, "User not found");
+
         const { datePosted, skills, taskPay } = request.query;
         const query: Record<string, any> = { userId: request.userId };
 
+        // Filter by date posted
         if (datePosted && datePosted !== 'anytime') {
             const date = new Date();
             switch(datePosted) {
@@ -227,8 +268,10 @@ export const getFilteredTasks: RequestHandler = async (request: Request, respons
             query.createdAt = { $gte: date };
         }
 
+        // Filter by skills (task type)
         if (skills) query.taskType = skills;
 
+        // Filter by task pay range
         if (taskPay) {
             const ranges: Record<string, [number, number?]> = {
                 '50-80': [50, 80],
@@ -247,7 +290,10 @@ export const getFilteredTasks: RequestHandler = async (request: Request, respons
         }
 
         const tasks = await Task.find(query).sort({ createdAt: -1 });
-        response.json({ tasks, appliedFilters: { datePosted, skills, taskPay } });
+        response.json({
+            tasks,
+            appliedFilters: { datePosted, skills, taskPay }
+        });
     } catch (error) {
         next(error);
     }
