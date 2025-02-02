@@ -156,7 +156,7 @@ export const userTasks = async (request:Request, response:Response, next:NextFun
         const userTasks = await taskModel.find({authorId:userId})
         response.status(200).json({
             success: true,
-            message: "User Articles served",
+            message: "User Tasks served",
             userTasks
         })
     }
