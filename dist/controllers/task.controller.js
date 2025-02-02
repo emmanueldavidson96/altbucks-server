@@ -120,7 +120,7 @@ const deleteTask = (request, response, next) => __awaiter(void 0, void 0, void 0
         yield task_model_1.default.findByIdAndDelete(request.params.id);
         response.status(200).json({
             success: true,
-            message: "Task deleted successfully",
+            message: "Task delete successfully",
         });
     }
     catch (error) {
