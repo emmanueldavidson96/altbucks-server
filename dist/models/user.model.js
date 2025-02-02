@@ -39,16 +39,16 @@ const userSchema = new mongoose_1.default.Schema({
         default: false
     },
     isAdmin: {
-        type: String,
+        type: Boolean,
         default: false
     },
     isTaskEarner: {
-        type: String,
-        default: false
+        type: Boolean,
+        default: false,
     },
     isTaskCreator: {
-        type: String,
-        default: false
+        type: Boolean,
+        default: false,
     },
     userImageUrl: {
         type: String,

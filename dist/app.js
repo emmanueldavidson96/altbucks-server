@@ -33,9 +33,11 @@ const http_errors_1 = __importStar(require("http-errors"));
 const cors_1 = __importDefault(require("cors"));
 const user_routes_1 = __importDefault(require("./routes/user.routes"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const tasks_routes_1 = __importDefault(require("./routes/tasks.routes"));
 // Middlewares
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
+app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, morgan_1.default)("dev"));
 app.use((0, cookie_parser_1.default)());
 app.use((0, cors_1.default)({
@@ -44,6 +46,7 @@ app.use((0, cors_1.default)({
 }));
 //Routes
 app.use("/api/v1/users", user_routes_1.default);
+app.use("/api/v1/tasks", tasks_routes_1.default);
 //Error Handling
 app.use((request, response, next) => {
     next((0, http_errors_1.default)(404, "Endpoint not found"));

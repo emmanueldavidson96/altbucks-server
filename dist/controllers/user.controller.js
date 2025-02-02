@@ -41,7 +41,7 @@ const SignupHandlerTaskEarner = (request, response, next) => __awaiter(void 0, v
             lastName: lastName,
             phoneNumber: phoneNumber,
             confirmPassword: confirmPassword,
-            isTaskEarner: true
+            isTaskEarner: true,
         });
         (0, generateVerificationTokenAndSetCookie_1.default)(response, newUser._id);
         response.status(201).json({
