@@ -35,15 +35,15 @@ const userSchema = new mongoose.Schema({
         default:false
     },
     isAdmin:{
-        type:String,
+        type:Boolean,
         default:false
     },
     isTaskEarner:{
-        type:String,
+        type:Boolean,
         default: false
     },
     isTaskCreator:{
-        type:String,
+        type:Boolean,
         default:false
     },
     userImageUrl:{

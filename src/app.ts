@@ -6,10 +6,12 @@ import cors from "cors";
 import env from "./utils/validateEnv";
 import userRoutes from "./routes/user.routes";
 import cookieParser from "cookie-parser";
+import taskRoutes from "./routes/tasks.routes"
 
 // Middlewares
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({extended:true}))
 app.use(morgan("dev"));
 app.use(cookieParser());
 
@@ -18,12 +20,14 @@ app.use(cors({
     credentials:true
 }));
 
+
 //Routes
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/tasks", taskRoutes);
 
 
 //Error Handling
-app.use((request, response, next) => {
+app.use((request:Request, response:Response, next) => {
     next(createHttpError(404,"Endpoint not found"))
 })
 
