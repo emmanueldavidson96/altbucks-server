@@ -40,11 +40,11 @@ const userSchema = new mongoose.Schema({
     },
     isTaskEarner:{
         type:Boolean,
-        default: false
+        default: false,
     },
     isTaskCreator:{
         type:Boolean,
-        default:false
+        default:false,
     },
     userImageUrl:{
         type:String,

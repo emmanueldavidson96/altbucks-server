@@ -39,7 +39,7 @@ export const SignupHandlerTaskEarner:RequestHandler = async (request:Request, re
             lastName:lastName,
             phoneNumber: phoneNumber,
             confirmPassword:confirmPassword,
-            isTaskEarner:true
+            isTaskEarner:true,
         })
         generateTokenAndSetCookie(response, newUser._id);
         response.status(201).json({
