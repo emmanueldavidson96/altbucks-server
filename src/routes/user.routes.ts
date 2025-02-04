@@ -29,6 +29,14 @@ router.get("/user/:id", verifyToken, Controller.GetUserById)
 //Logout Users
 router.post("/logout-user", Controller.LogoutUserHandler);
 
+//Request password reset
+router.post("/forgot-password", Controller.RequestPasswordReset)
+
+//Verify password reset token
+router.post("/verify-token", Controller.VerifyResetToken)
+
+//Reset Password
+router.post("/reset-password", Controller.ResetPassword)
 
 
 export default router
