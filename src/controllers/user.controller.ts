@@ -240,16 +240,13 @@ export const ResetPassword:RequestHandler = async (request:Request, response:Res
         });
 
         if (!user) {
-            response.status(201).json({
-                success:true,
-                message:"Invalid or expired OTP"
-            })
+            throw createHttpError(400, "Invalid or expired Otp")
         }
         else {
             user.password = await bcrypt.hash(newPassword, 10);
             await user.save()
 
-            response.status(201).json({
+            response.status(200).json({
                 success:true,
                 message:"Password reset successful"
             })
