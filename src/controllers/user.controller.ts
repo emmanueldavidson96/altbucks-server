@@ -203,3 +203,55 @@ export const LogoutUserHandler:RequestHandler = async (request:Request, response
         next(error)
     }
 }
+
+// Request password reset
+export const RequestPasswordReset:RequestHandler = async (request:Request, response:Response, next:NextFunction) => {
+    const { email } = request.body;
+    try{
+        if(!email){
+            throw createHttpError(409, "Missing parameters!")
+        }
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            throw createHttpError(404, "No registered user with email");
+        }
+
+        response.status(201).json({
+            success: true,
+            message: "Request granted"
+        });
+    }catch(error){
+        next(error)
+    }
+}
+
+export const ResetPassword:RequestHandler = async (request:Request, response:Response, next:NextFunction) => {
+    const { email, confirmPassword, newPassword } = request.body;
+    try{
+        if(!email || !confirmPassword || !newPassword){
+            throw createHttpError(409, "Missing parameters!")
+        }
+        if (newPassword !== confirmPassword) {
+            throw createHttpError(400, "Passwords do not match!")
+        }
+
+        const user = await userModel.findOne({
+            email,
+        });
+
+        if (!user) {
+            throw createHttpError(400, "Invalid or expired Otp")
+        }
+        else {
+            user.password = await bcrypt.hash(newPassword, 10);
+            await user.save()
+
+            response.status(200).json({
+                success:true,
+                message:"Password reset successful"
+            })
+        }
+    }catch(error){
+        next(error)
+    }
+}
