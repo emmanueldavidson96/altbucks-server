@@ -215,42 +215,10 @@ export const RequestPasswordReset:RequestHandler = async (request:Request, respo
         if (!user) {
             throw createHttpError(404, "No registered user with email");
         }
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        user.verificationToken = otp;
-        user.verificationTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-        console.log(user)
-        await user.save();
-
-        // Send OTP to email
 
         response.status(201).json({
             success: true,
-            message: "Verification token sent!"
-        });
-    }catch(error){
-        next(error)
-    }
-}
-
-// Verify password reset token
-export const VerifyResetToken:RequestHandler = async (request:Request, response:Response, next:NextFunction) => {
-    const { email, token } = request.body;
-    try{
-        if(!email || !token){
-            throw createHttpError(409, "Missing parameters!")
-        }
-        const user = await userModel.findOne({
-            email,
-            verificationToken: token,
-            verificationTokenExpiresAt: { $gt: Date.now() }
-        });
-
-        if (!user) {
-            throw createHttpError(404, "Invalid or expired verification token");
-        }
-        response.status(201).json({
-            success: true,
-            message: "Token verified!"
+            message: "Request granted"
         });
     }catch(error){
         next(error)
@@ -258,21 +226,18 @@ export const VerifyResetToken:RequestHandler = async (request:Request, response:
 }
 
 export const ResetPassword:RequestHandler = async (request:Request, response:Response, next:NextFunction) => {
-    const { email, token, confirmPassword, newPassword } = request.body;
+    const { email, confirmPassword, newPassword } = request.body;
     try{
-        if(!email || !token || !confirmPassword || !newPassword){
+        if(!email || !confirmPassword || !newPassword){
             throw createHttpError(409, "Missing parameters!")
         }
         if (newPassword !== confirmPassword) {
-            response.status(400).json({ message: "Passwords do not match" });
+            throw createHttpError(400, "Passwords do not match!")
         }
 
         const user = await userModel.findOne({
             email,
-            verificationToken: token,
-            verificationTokenExpiresAt: { $gt: Date.now() }
         });
-        console.log(user)
 
         if (!user) {
             response.status(201).json({
@@ -282,9 +247,7 @@ export const ResetPassword:RequestHandler = async (request:Request, response:Res
         }
         else {
             user.password = await bcrypt.hash(newPassword, 10);
-            user.verificationToken = undefined;
-            user.verificationTokenExpiresAt = undefined;
-            await user?.save()
+            await user.save()
 
             response.status(201).json({
                 success:true,
