@@ -3,6 +3,7 @@ import createHttpError from "http-errors";
 import userModel from "../models/user.model";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/generateVerificationTokenAndSetCookie";
+import { sendMail } from "../mails/mailservice";
 
 
 interface SignUpBody{
@@ -218,10 +219,14 @@ export const RequestPasswordReset:RequestHandler = async (request:Request, respo
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         user.verificationToken = otp;
         user.verificationTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-        console.log(user)
         await user.save();
 
         // Send OTP to email
+        await sendMail(
+            user.email, 
+            "Altbucks Password Reset",
+            `Your Verification token is: ${otp}`
+        );
 
         response.status(201).json({
             success: true,
@@ -272,7 +277,6 @@ export const ResetPassword:RequestHandler = async (request:Request, response:Res
             verificationToken: token,
             verificationTokenExpiresAt: { $gt: Date.now() }
         });
-        console.log(user)
 
         if (!user) {
             throw createHttpError(400, "Invalid or expired Otp")

@@ -36,7 +36,7 @@ router.post("/forgot-password", Controller.RequestPasswordReset)
 router.post("/verify-token", Controller.VerifyResetToken)
 
 //Reset Password
-router.post("/reset-password", Controller.ResetPassword)
+router.put("/reset-password", Controller.ResetPassword)
 
 
 export default router
