@@ -269,7 +269,7 @@ export const ResetPassword:RequestHandler = async (request:Request, response:Res
             throw createHttpError(409, "Missing parameters!")
         }
         if (newPassword !== confirmPassword) {
-            response.status(400).json({ message: "Passwords do not match" });
+            throw createHttpError(400, "Passwords do not match");
         }
 
         const user = await userModel.findOne({
