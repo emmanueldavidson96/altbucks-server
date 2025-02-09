@@ -216,7 +216,7 @@ export const RequestPasswordReset:RequestHandler = async (request:Request, respo
         if (!user) {
             throw createHttpError(404, "No registered user with email");
         }
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otp = Math.floor(10000 + Math.random() * 90000).toString();
         user.verificationToken = otp;
         user.verificationTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
         await user.save();
