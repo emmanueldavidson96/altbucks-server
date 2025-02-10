@@ -16,7 +16,7 @@ app.use(morgan("dev"));
 app.use(cookieParser());
 
 app.use(cors({
-    origin:["http://localhost:3000","https://altbucks.vercel.app"],
+    origin:["http://localhost:3000","https://altbucks.vercel.app", "https://altbucks-six.vercel.app"],
     credentials:true
 }));
 
