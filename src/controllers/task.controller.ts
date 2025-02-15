@@ -134,6 +134,9 @@ export const taskInfo = async (request:Request, response:Response, next:NextFunc
 
     try{
         const task = await taskModel.findById(request.params.id);
+        if(!task) {
+            throw createHttpError(409, "Task not found!");
+        }
         response.status(200).json({
             success: true,
             message:"Article Found!",
@@ -150,13 +153,13 @@ export const userTasks = async (request:Request, response:Response, next:NextFun
     const userId = request.userId;
     
     if(!userId){
-        throw createHttpError(409,"No user found")
+        throw createHttpError(409,"No user found!")
     }   
     try{
         const userTasks = await taskModel.find({authorId:userId})
         response.status(200).json({
             success: true,
-            message: "User Tasks served",
+            message: "User Tasks served!",
             userTasks
         })
     }
@@ -190,12 +193,15 @@ export const editTask = async (request:Request, response:Response, next:NextFunc
             cloudinary_id: result?.public_id,
         }
         const editedTask = await taskModel.findByIdAndUpdate(request.params.id, data, {new:true});
+        if (!editedTask) {
+            throw createHttpError(409,"Task not found!");
+        }
         if(request.file){
             fs.unlinkSync(request.file.path)
         }
         response.status(200).json({
             success:true,
-            message:"Successfully edited the article",
+            message:"Successfully edited the article!",
             editedTask
         })
     }
