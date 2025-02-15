@@ -29,7 +29,7 @@ const taskSchema = new mongoose.Schema({
         required:true
     },
     taskDeadline:{
-        type:Number,
+        type:Date,
         required:true
     },
     taskRequirements:{

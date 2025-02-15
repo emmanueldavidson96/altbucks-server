@@ -180,7 +180,7 @@ export const editTask = async (request:Request, response:Response, next:NextFunc
             taskType: request.body.taskType || task?.taskType,
             taskNumberofRespondent: request.body.taskNumberofRespondent || task?.taskNumberofRespondent,
             taskDescription: request.body.taskDescription || task?.taskDescription,
-            taskLocation: request.body.taskDescription || task?.taskDescription,
+            taskLocation: request.body.taskLocation || task?.taskLocation,
             taskCompensation: request.body.taskCompensation || task?.taskCompensation,
             taskDeadline: request.body.taskDeadline || task?.taskDeadline,
             taskRequirements: request.body.taskRequirements || task?.taskRequirements,
