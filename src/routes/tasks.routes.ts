@@ -2,17 +2,18 @@ import express from "express";
 import verifyToken from "../middlewares/verifyToken";
 import * as Controller from "../controllers/task.controller"
 import upload from "../middlewares/multer";
+import isTaskCreator from "../middlewares/isTaskCreator";
 
 const router = express.Router();
 
 //Task creator creates a new task
-router.post("/create-task", verifyToken, upload.single("taskImage"), Controller.CreateTask )
+router.post("/create-task", verifyToken, isTaskCreator, upload.single("taskImage"), Controller.CreateTask )
 
 //Task creator update task
-router.put("/update-task/:id", verifyToken, upload.single("taskImage"), Controller.editTask )
+router.put("/update-task/:id", verifyToken, isTaskCreator, upload.single("taskImage"), Controller.editTask )
 
 //Task creator delete task
-router.delete("/delete-task/:id", verifyToken, Controller.deleteTask)
+router.delete("/delete-task/:id", verifyToken, isTaskCreator, Controller.deleteTask)
 
 //Task Detail
 router.get("/task/:id", Controller.taskInfo)
@@ -21,7 +22,7 @@ router.get("/task/:id", Controller.taskInfo)
 router.get("/tasks", Controller.getAllTasks)
 
 //All Tasks Created by Logged in Task Creator
-router.get("/tasks/user", verifyToken, Controller.userTasks)
+router.get("/tasks/user", verifyToken, isTaskCreator, Controller.userTasks)
 
 
 
