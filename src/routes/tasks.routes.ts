@@ -16,13 +16,13 @@ router.put("/update-task/:id", verifyToken, isTaskCreator, upload.single("taskIm
 router.delete("/delete-task/:id", verifyToken, isTaskCreator, Controller.deleteTask)
 
 //Task Detail
-router.get("/task/:id", Controller.taskInfo)
+router.get("/:id", Controller.taskInfo)
 
 //All Tasks
 router.get("/tasks", Controller.getAllTasks)
 
 //All Tasks Created by Logged in Task Creator
-router.get("/tasks/user", verifyToken, isTaskCreator, Controller.userTasks)
+router.get("/user", verifyToken, isTaskCreator, Controller.userTasks)
 
 
 
