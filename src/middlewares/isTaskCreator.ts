@@ -4,7 +4,7 @@ import createHttpError from "http-errors";
 
 const isTaskCreator = async (request:Request, response:Response, next:NextFunction) => {
     try{
-        const user = await userModel.findById(request);
+        const user = await userModel.findById(request.userId);
         if(!user){
             throw createHttpError(409, "User not found");
         }
