@@ -22,7 +22,7 @@ router.get("/:id", Controller.taskInfo)
 router.get("/tasks", Controller.getAllTasks)
 
 //All Tasks Created by Logged in Task Creator
-router.get("/user", verifyToken, isTaskCreator, Controller.userTasks)
+router.get("/tasks/user", verifyToken, isTaskCreator, Controller.userTasks)
 
 
 
